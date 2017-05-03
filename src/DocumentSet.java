@@ -25,10 +25,20 @@ public class DocumentSet {
         averageLength = totalLength / documents.size();
     }
 
-    public List<ScoredDoc> bm25(String query) {
-        String[] words = query.split(" ");
-        Map<Document, Double> scores = new HashMap<>();
+    public List<ScoredDoc> score(String query) {
+        List<ScoredDoc> ret = new ArrayList<>();
+//        Map<Document, Double> scores = bm25(query);
+        Map<Document, Double> scores = bigrams(query);
+        for (Document d : scores.keySet()) {
+            ret.add(new ScoredDoc(d, scores.get(d)));
+        }
 
+        return ret;
+    }
+
+    private Map<Document, Double> bm25(String query) {
+        Map<Document, Double> scores = new HashMap<>();
+        String[] words = query.split(" ");
         for (Document d : documents) {
             scores.put(d, 0.0);
         }
@@ -37,16 +47,30 @@ public class DocumentSet {
             double idf = inverseDocumentFrequency(word);
             for (Document d : documents) {
                 double frequency = d.wordFrequency(word);
-                double score = (frequency * (K1 + 1)) / (frequency + (K1 * (1 - B + (B * (d.numWords() / averageLength)))));
+                double score = idf * ((frequency * (K1 + 1)) / (frequency + (K1 * (1 - B + (B * (d.numWords() / averageLength))))));
                 scores.put(d, scores.get(d) + score);
             }
         }
-        List<ScoredDoc> ret = new ArrayList<>();
-        for (Document d : scores.keySet()) {
-            ret.add(new ScoredDoc(d, scores.get(d)));
+        return scores;
+    }
+
+    private Map<Document, Double> bigrams(String query) {
+        Map<Document, Double> scores = new HashMap<>();
+        String[] words = query.split(" ");
+        for (Document d : documents) {
+            scores.put(d, 0.0);
         }
 
-        return ret;
+        for (Document d : documents) {
+            int hits = 0;
+            for (String w1 : words) {
+                for (String w2 : words) {
+                    hits += d.bigramOccurrences(w1, w2);
+                }
+            }
+            scores.put(d, ((double) hits) / ((double) d.numBigrams()));
+        }
+        return scores;
     }
 
     private double inverseDocumentFrequency(String word) {
@@ -61,7 +85,7 @@ public class DocumentSet {
 
     public void printOccurences(String word) {
         for (Document doc : documents) {
-            System.out.println(doc.getName() + ": " + doc.wordOccurences(word));
+            System.out.println(doc.getName() + ": " + doc.wordOccurrences(word));
         }
     }
 }
