@@ -16,11 +16,13 @@ public class Document {
     public Document(File f) {
         name = f.getName();
         try {
+            // Plaintext version of what you see when you visit the page (including links, headers, etc.)
             fileContent = Jsoup.parse(new String(Files.readAllBytes(Paths.get(f.getPath())))).text();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        words = fileContent.split("\\s+");
+        // Strip punctuation then split on whitespace.
+        words = fileContent.replaceAll("\\p{Punct}", "").split("\\s+");
         wordCounts = new HashMap<>();
         bigramCounts = new HashMap<>();
         for (int i = 0; i < words.length; i++) {
@@ -39,6 +41,16 @@ public class Document {
                     bigramCounts.put(b, bigramCounts.get(b) + 1);
                 } else {
                     bigramCounts.put(b, 1);
+                }
+
+                if (i < words.length - 2) {
+                    String w3 = words[i+2].toLowerCase();
+                    b = new Bigram(w1, w3);
+                    if (bigramCounts.containsKey(b)) {
+                        bigramCounts.put(b, bigramCounts.get(b) + 1);
+                    } else {
+                        bigramCounts.put(b, 1);
+                    }
                 }
             }
         }
@@ -71,6 +83,6 @@ public class Document {
     }
 
     public int numBigrams() {
-        return words.length - 1;
+        return 2*words.length - 3;
     }
 }

@@ -1,3 +1,4 @@
+// Wrapper for a pair of words.
 public class Bigram {
     public String w1;
     public String w2;
@@ -15,6 +16,7 @@ public class Bigram {
         return false;
     }
 
+    // These are used as keys to a hashmap.
     public int hashCode() {
         int hash = 13;
         hash = 23 * hash + w1.hashCode();

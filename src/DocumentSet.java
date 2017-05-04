@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public class DocumentSet {
+    // configurable constants
     private static final double K1 = 1.2;
     private static final double B = .75;
     private static final double EPSILON = .001;
@@ -66,6 +67,7 @@ public class DocumentSet {
         }
 
         for (String word : words) {
+            // Put a floor on this to prevent negative scores.
             double idf = Math.max(inverseDocumentFrequency(word), EPSILON);
             for (Document d : documents) {
                 double frequency = d.wordFrequency(word);

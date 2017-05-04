@@ -1,3 +1,4 @@
+// Wrapper for a document, score pair.
 public class ScoredDoc {
     public Document doc;
     public double score;
