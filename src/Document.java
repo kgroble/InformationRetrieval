@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import org.jsoup.*;
 
 public class Document {
     private String name;
@@ -14,7 +15,7 @@ public class Document {
     public Document(File f) {
         name = f.getName();
         try {
-            fileContent = new String(Files.readAllBytes(Paths.get(f.getPath())));
+            fileContent = Jsoup.parse(new String(Files.readAllBytes(Paths.get(f.getPath())))).text();
         } catch (IOException e) {
             e.printStackTrace();
         }
