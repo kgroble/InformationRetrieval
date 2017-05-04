@@ -17,8 +17,8 @@ public class Bigram {
 
     public int hashCode() {
         int hash = 13;
-        hash = 23 * 13 + w1.hashCode();
-        hash = 23 * 13 + w2.hashCode();
+        hash = 23 * hash + w1.hashCode();
+        hash = 23 * hash + w2.hashCode();
         return hash;
     }
 

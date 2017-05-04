@@ -7,6 +7,7 @@ import java.util.Map;
 public class DocumentSet {
     private static final double K1 = 1.2;
     private static final double B = .75;
+    private static final double EPSILON = .001;
 
     private List<Document> documents;
     private int averageLength;
@@ -27,10 +28,31 @@ public class DocumentSet {
 
     public List<ScoredDoc> score(String query) {
         List<ScoredDoc> ret = new ArrayList<>();
-//        Map<Document, Double> scores = bm25(query);
-        Map<Document, Double> scores = bigrams(query);
-        for (Document d : scores.keySet()) {
-            ret.add(new ScoredDoc(d, scores.get(d)));
+        Map<Document, Double> bm25Scores = bm25(query);
+        double maxBM25 = 0;
+        for (double score : bm25Scores.values()) {
+            if (score > maxBM25) {
+                maxBM25 = score;
+            }
+        }
+        if (maxBM25 == 0.0) {
+            maxBM25 = 1;
+        }
+        Map<Document, Double> bigramScores = bigrams(query);
+        double maxBigram = 0;
+        for (double score : bigramScores.values()) {
+            if (score > maxBigram) {
+                maxBigram = score;
+            }
+        }
+        if (maxBigram == 0.0) {
+            maxBigram = 1;
+        }
+        boolean useBigram = query.contains(" ");
+        for (Document d : bigramScores.keySet()) {
+            double score = (bm25Scores.get(d) / maxBM25)
+                    * ((useBigram ? bigramScores.get(d) : 1) / maxBigram);
+            ret.add(new ScoredDoc(d, score));
         }
 
         return ret;
@@ -44,7 +66,7 @@ public class DocumentSet {
         }
 
         for (String word : words) {
-            double idf = inverseDocumentFrequency(word);
+            double idf = Math.max(inverseDocumentFrequency(word), EPSILON);
             for (Document d : documents) {
                 double frequency = d.wordFrequency(word);
                 double score = idf * ((frequency * (K1 + 1)) / (frequency + (K1 * (1 - B + (B * (d.numWords() / averageLength))))));
@@ -83,9 +105,4 @@ public class DocumentSet {
         return Math.log10((documents.size() - numContaining + .5)/(numContaining + .5));
     }
 
-    public void printOccurences(String word) {
-        for (Document doc : documents) {
-            System.out.println(doc.getName() + ": " + doc.wordOccurrences(word));
-        }
-    }
 }
