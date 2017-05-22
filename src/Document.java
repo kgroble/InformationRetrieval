@@ -2,16 +2,17 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import edu.stanford.nlp.simple.Sentence;
 import org.jsoup.*;
 
 public class Document {
     private String name;
     private String fileContent;
-    private String[] words;
-    private Map<String, Integer> wordCounts;
-    private Map<Bigram, Integer> bigramCounts;
+    private List<Statement> statements;
 
     public Document(File f) {
         name = f.getName();
@@ -22,67 +23,31 @@ public class Document {
             e.printStackTrace();
         }
         // Strip punctuation then split on whitespace.
-        words = fileContent.replaceAll("\\p{Punct}", "").split("\\s+");
-        wordCounts = new HashMap<>();
-        bigramCounts = new HashMap<>();
-        for (int i = 0; i < words.length; i++) {
-            String word = words[i].toLowerCase();
-            if (wordCounts.containsKey(word)) {
-                wordCounts.put(word, wordCounts.get(word) + 1);
-            } else {
-                wordCounts.put(word, 1);
-            }
-
-            if (i < words.length - 1) {
-                String w1 = word;
-                String w2 = words[i+1].toLowerCase();
-                Bigram b = new Bigram(w1, w2);
-                if (bigramCounts.containsKey(b)) {
-                    bigramCounts.put(b, bigramCounts.get(b) + 1);
-                } else {
-                    bigramCounts.put(b, 1);
-                }
-
-                if (i < words.length - 2) {
-                    String w3 = words[i+2].toLowerCase();
-                    b = new Bigram(w1, w3);
-                    if (bigramCounts.containsKey(b)) {
-                        bigramCounts.put(b, bigramCounts.get(b) + 1);
-                    } else {
-                        bigramCounts.put(b, 1);
-                    }
-                }
-            }
+//        words = fileContent.replaceAll("\\p{Punct}", "").split("\\s+");
+        statements = new ArrayList<>();
+        edu.stanford.nlp.simple.Document doc = new edu.stanford.nlp.simple.Document(fileContent);
+        for (Sentence s : doc.sentences()) {
+            Statement statement = new Statement(s);
+            System.out.println(statement);
+            statements.add(statement);
         }
     }
 
-    public int wordOccurrences(String word) {
-        return wordCounts.getOrDefault(word.toLowerCase(), 0);
-    }
 
-    public int bigramOccurrences(String w1, String w2) {
-        w1 = w1.toLowerCase();
-        w2 = w2.toLowerCase();
-        return bigramCounts.getOrDefault(new Bigram(w1, w2), 0);
-    }
-
-    public double wordFrequency(String word) {
-        return (double) wordOccurrences(word) / (double) words.length;
+    public Optional<Statement> checkStatement(String query) {
+        Statement queryStatement = new Statement(new Sentence(query));
+//        System.out.println("Original: " + queryStatement.getOriginal());
+//        System.out.println("Subject: " + queryStatement.getSubject());
+//        System.out.println("Verb: " + queryStatement.getVerb());
+//        System.out.println("Object: " + queryStatement.getObject());
+        int i = statements.indexOf(queryStatement);
+        if (i >= 0) {
+            return Optional.of(statements.get(i));
+        }
+        return Optional.empty();
     }
 
     public String getName() {
         return name;
-    }
-
-    public boolean containsWord(String word) {
-        return wordCounts.containsKey(word.toLowerCase());
-    }
-
-    public int numWords() {
-        return words.length;
-    }
-
-    public int numBigrams() {
-        return 2*words.length - 3;
     }
 }
