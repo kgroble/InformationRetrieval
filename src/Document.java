@@ -28,8 +28,10 @@ public class Document {
         edu.stanford.nlp.simple.Document doc = new edu.stanford.nlp.simple.Document(fileContent);
         for (Sentence s : doc.sentences()) {
             Statement statement = new Statement(s);
-            System.out.println(statement);
-            statements.add(statement);
+            if (statement.getSubject() != null && !statement.getObject().isEmpty()) {
+                System.out.println(statement);
+                statements.add(statement);
+            }
         }
     }
 

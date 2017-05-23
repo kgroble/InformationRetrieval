@@ -39,7 +39,10 @@ public class Main {
 
     public static void parseHTML(File source, File dest) {
 		try {
-			String fileContent = Jsoup.parse(new String(Files.readAllBytes(Paths.get(source.getPath())))).text().replaceAll("\\[[\\d]+\\]", "");
+			String fileContent = Jsoup.parse(new String(Files.readAllBytes(Paths.get(source.getPath())))).text()
+					.replaceAll("\\[[\\d]+\\]", "");
+//					.replaceAll("\\w[\\W]*\\?[\\W]+\\w", "");
+
 			PrintWriter out = new PrintWriter(dest);
 			out.println(fileContent);
 		} catch (IOException e) {
