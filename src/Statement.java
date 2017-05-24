@@ -39,7 +39,7 @@ public class Statement {
                 if (depLabel.equals("root")) {
                     Optional<Integer> index = s.governor(i);
                     if (index.isPresent() && index.get() == -1) {
-                        this.verb = s.word(i).toLowerCase();
+                        this.verb = Stemmer.stemString(s.word(i).toLowerCase());
                         root = i;
                         break;
                     }
@@ -54,13 +54,13 @@ public class Statement {
                    if (this.subject == null) {
                        Optional<Integer> index = s.governor(i);
                        if (index.isPresent() && index.get() == root) {
-                           this.subject = s.word(i).toLowerCase();
+                           this.subject = Stemmer.stemString(s.word(i).toLowerCase());
                        }
                    }
                } else if (!depLabel.equals("punct") && !depLabel.equals("cc")){
                    Optional<Integer> index = s.governor(i);
                    if (index.isPresent() && index.get() == root) {
-                       this.objects.add(s.word(i).toLowerCase());
+                       this.objects.add(Stemmer.stemString(s.word(i).toLowerCase()));
                    }
                }
             }
@@ -81,7 +81,7 @@ public class Statement {
         boolean verbEqual = (this.verb == null && other.verb == null) || (this.verb != null && other.verb != null && this.verb.equals(other.verb));
         Set<String> intersection = new HashSet(this.objects);
         intersection.retainAll(other.objects);
-        boolean objectEqual = !intersection.isEmpty();
+        boolean objectEqual = (this.objects.isEmpty() && other.objects.isEmpty()) ||  !intersection.isEmpty();
         return subjEqual && verbEqual && objectEqual;
     }
 }

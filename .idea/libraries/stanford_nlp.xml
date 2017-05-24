@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="stanford-nlp">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/stanford-nlp" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/stanford-nlp" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/stanford-nlp" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/stanford-nlp" recursive="false" type="SOURCES" />
+  </library>
+</component>
